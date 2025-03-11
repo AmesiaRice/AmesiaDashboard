@@ -206,7 +206,7 @@ const SheetData = () => {
                       {header}
                     </th>
                   ))}
-                  <th className="border border-gray-400 p-2">Actions</th>{" "}
+                  {/* <th className="border border-gray-400 p-2">Actions</th>{" "} */}
                   {/* Add Actions column */}
                 </tr>
               </thead>
@@ -225,14 +225,14 @@ const SheetData = () => {
                         {cell}
                       </td>
                     ))}
-                    <td className="border border-gray-400 px-12 py-4">
+                    {/* <td className="border border-gray-400 px-12 py-4">
                       <button
                         className="bg-blue-500 text-white p-2"
                         onClick={() => handleEditClick(row)}
                       >
                         Edit
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
