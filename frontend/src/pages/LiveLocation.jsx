@@ -4,11 +4,13 @@ import toast, { Toaster } from "react-hot-toast";
 function LiveLocation() {
   const [name, setName] = useState("");
   const [location, setLocation] = useState(""); // Manual location entry
+  const [pincode, setPincode] = useState(""); // Manual Pincode entry
   const [coordinates, setCoordinates] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(null); // Store uploaded image URL
 
   // Start camera
   const startCamera = async () => {
@@ -57,25 +59,66 @@ function LiveLocation() {
   };
 
   // Submit form
-  const handleSubmit = (event) => {
-    event.preventDefault();
 
-    if (!capturedImage) {
-      toast.error("Please capture an image before submitting.");
-      return;
+const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  if (!capturedImage) {
+    toast.error("Please capture an image before submitting.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("location", location);
+  formData.append("pincode", pincode);
+  formData.append("latitude", coordinates?.latitude || "");
+  formData.append("longitude", coordinates?.longitude || "");
+
+  // Convert base64 to Blob and append to FormData
+  const response = await fetch(capturedImage);
+  const blob = await response.blob();
+  formData.append("image", blob, "captured-image.png");
+
+  try {
+    const res = await fetch("http://localhost:5000/api/location/upload", { // Changed port to 5000
+      method: "POST",
+      body: formData,
+    });
+
+    const text = await res.text();
+    try {
+      const data = JSON.parse(text);
+      console.log("Response from Server:", data);
+
+      if (res.ok) {
+        toast.success("Data submitted successfully!");
+        setUploadedImageUrl(data.imageUrl); // Store image URL to display it
+
+        // Reset form
+        setCoordinates(null);
+        setCapturedImage(null);
+        setLocation("");
+        setPincode("");
+        setName("");
+      } else {
+        toast.error("Submission failed. Try again.");
+      }
+    } catch (error) {
+      console.error("Error parsing JSON:", text);
+      toast.error("Server returned invalid JSON.");
     }
+  } catch (error) {
+    console.error("Error submitting data:", error);
+    toast.error("Server error.");
+  }
+};
 
-    console.log("Form Submitted:", { name, location, coordinates, capturedImage });
-    toast.success("Form submitted successfully!");
-
-    setCoordinates(null);
-    setCapturedImage(null);
-    setLocation("");
-    setName("");
-  };
+  
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    <div className="w-[100%] h-full location">
+    <div className=" max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
       <Toaster position="top-right" reverseOrder={false} />
       <h2 className="text-xl font-bold mb-4">User Form</h2>
 
@@ -96,6 +139,17 @@ function LiveLocation() {
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
+            className="w-full p-2 border rounded-lg"
+            placeholder="Enter your exact location"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Exact Pincode</label>
+          <input
+            type="text"
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)}
             className="w-full p-2 border rounded-lg"
             placeholder="Enter your exact location"
             required
@@ -150,6 +204,7 @@ function LiveLocation() {
           Submit
         </button>
       </form>
+    </div>
     </div>
   );
 }

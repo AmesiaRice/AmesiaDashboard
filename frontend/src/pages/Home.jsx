@@ -1,9 +1,36 @@
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
 const Home = () => {
+  const [loginUserData,setLoginUserData]= useState();
+  const token = localStorage.getItem("token");
+
+  useEffect(()=>{
+    getUserData();
+  },[])
+
+  const getUserData = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:5000/api/user", {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      });
+
+      setLoginUserData(data.data); // ✅ Now we get ALL users from API
+    } catch (error) {
+      console.log(`Failed to fetch data`, error);
+    }
+  };
+
+  console.log(loginUserData);
   return (
-    <div className="min-h-screen bg-gray-100 p-6 pt-24 ">
+    <div className={ ` home min-h-screen p-6`}>
+
       <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl font-bold mb-4 text-orange-500">Welcome to Amasia Rice</h1>
-        <p className="text-gray-600 text-lg mb-6">
+        <h1 className="text-4xl font-bold mb-4 text-orange-500">Welcome {loginUserData && loginUserData.name}</h1>
+        <p className=" text-lg mb-6 text-white font-semibold">
           Experience the finest quality rice with Amesia Rice. Our premium selection is sourced from the best farms,
           ensuring rich flavor and superior quality for your meals.
         </p>

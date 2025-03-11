@@ -1,19 +1,48 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
-const Login =()=> {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with", email, password);
+    try {
+      const response = await axios.post("http://localhost:5000/api/login", { email, password });
+
+      // ✅ Store token in localStorage
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role); // Store role (admin/user)
+
+      toast.success("login successfully")
+      console.log("Logged in successfully", response.data);
+
+      // Redirect user after login
+      if (response.data.role === "admin") {
+        setTimeout(() => {
+          navigate("/admin");
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      }
+    } catch (err) {
+      setError("Invalid email or password");
+      toast.error("Invalid email or password")
+    }
   };
 
   return (
-    <div className="flex justify-center mt-10">
+    <div className="flex justify-center items-center h-screen login">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700">Email</label>
@@ -48,6 +77,6 @@ const Login =()=> {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

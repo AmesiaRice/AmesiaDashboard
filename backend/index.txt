@@ -1,10 +1,24 @@
+// const express = require("express");
+// const cors = require("cors");
+// const authRoutes = require("./routes/authRoutes");
+// const sheetRoutes = require("./routes/sheetRoutes");
+
+// const app = express();
+// app.use(cors()); 
+// app.use(express.json());
+// app.use(authRoutes);
+// app.use(sheetRoutes);
+ 
+// app.listen(5000, () => console.log("Server running on http://localhost:5000"));
+
+
+
 require("dotenv").config();
 const express = require("express");
 const { google } = require("googleapis");
 const cors = require("cors");
 const connectDB = require("./config");
 const uploadRoutes = require("./routes/upload");
-const userRoutes = require('./routes/userAuth');
 
 const app = express();
 app.use(cors());
@@ -16,14 +30,13 @@ connectDB();
 
 // Routes
 app.use("/api", uploadRoutes);
-app.use("/api", userRoutes);
 
 // Load credentials from .env file
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const sheetId = "1PjDJ7xPLDNflLT-iE7Uaj2K5_4u8l_HpzmEnetfIphI";
 const REDIRECT_URI ="http://localhost:5000/auth/callback"; // Ensure this matches Google Cloud Console
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]; // UPDATED SCOPE
+const sheetId = process.env.SHEET_ID;
 
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
@@ -73,7 +86,7 @@ app.get("/sheets", async (req, res) => {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "Party Visit (1)!B7:T10000",
+      range: "Party Visit (1)!A7:H10000",
     });
     res.json(response.data.values);
   } catch (error) {
@@ -119,7 +132,7 @@ app.post("/submit", async (req, res) => {
   }
 });
 
-// Submit Data to Party_Visit_(1)2
+// Submit Data to Party_Visit_(1)
 app.post("/submitSameSheet", async (req, res) => {
   if (!savedTokens) {
     return res.status(401).send("Unauthorized: Please authenticate first.");
@@ -138,7 +151,7 @@ app.post("/submitSameSheet", async (req, res) => {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: "Sheet2!A2", // Writing to Sheet1
+      range: "Party Visit (1)!A8", // Writing to Sheet1
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [newRow],
@@ -151,6 +164,7 @@ app.post("/submitSameSheet", async (req, res) => {
 });
 
 // Update existing row in Sheet1
+// Update existing row in Sheet1
 app.post("/updateRow", async (req, res) => {
   if (!savedTokens) {
     return res.status(401).send("Unauthorized: Please authenticate first.");
@@ -162,29 +176,37 @@ app.post("/updateRow", async (req, res) => {
   const { originalRow, updatedRow } = req.body; // Data from frontend
 
   try {
-    // Find the row index of the original row
+    // Fetch all rows from the sheet
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "Party Visit (1)!A7:I10000",
+      range: "Party Visit (1)!A7:H10000",
     });
+
     const rows = response.data.values;
-    const rowIndex = rows.findIndex(row => JSON.stringify(row) === JSON.stringify(originalRow));
+
+    // Find the row index using a better comparison method
+    const rowIndex = rows.findIndex(row => row[0] === originalRow[0]); // Match based on a unique column (e.g., timestamp, ID)
 
     if (rowIndex === -1) {
       return res.status(404).send("Row not found");
     }
 
-    // Update the row
+    // Prepare the updated row
+    const updatedValues = Array.isArray(updatedRow) ? updatedRow : Object.values(updatedRow);
+
+    // Update the row in Google Sheets
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `Party Visit (1)!A${rowIndex + 7}`, // Adjust the range to match the row index
+      range: `Party Visit (1)!A${rowIndex + 7}`, // Corrected row index
       valueInputOption: "USER_ENTERED",
       resource: {
-        values: [Object.values(updatedRow)],
+        values: [updatedValues],
       },
     });
+
     res.json({ success: true, message: "Row updated successfully!" });
   } catch (error) {
+    console.error("Error updating row:", error);
     res.status(500).send("Error updating row: " + error.message);
   }
 });

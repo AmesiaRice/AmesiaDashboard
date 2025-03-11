@@ -1,21 +1,45 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Registering", { name, email, phone, password });
+    try {
+      const response = await axios.post("http://localhost:5000/api/register", { name, email, phone, password });
+      console.log("Registered successfully", response.data);
+      toast.success("Registered successfully")
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+    } catch (err) {
+      setError("Registration failed");
+      toast.error("Registration failed")
+    }
   };
 
   return (
-    <div className="flex justify-center items-center bg-gray-100 h-screen">
+    <div className="flex justify-center items-center bg-gray-100 h-screen login">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700">Name</label>
@@ -71,4 +95,5 @@ const Register = () => {
     </div>
   );
 }
+
 export default Register;

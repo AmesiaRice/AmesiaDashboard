@@ -1,18 +1,32 @@
 import React, { useState } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   // State to manage the navbar's visibility
   const [nav, setNav] = useState(false);
+  const navigate = useNavigate();
 
   // Toggle function to handle the navbar's display
   const handleNav = () => {
     setNav(!nav);
   };
 
+  const token = localStorage.getItem("token");
+
+  const handleDeleteUser =()=>{
+    if(token){
+      localStorage.removeItem("token"); // Remove token from localStorage
+      localStorage.removeItem("role"); // Remove token from localStorage
+      navigate("/")
+    }
+    else{
+      navigate("/login")
+    }
+  }
+
   return (
-    <div className="sticky left-0 top-0 container bg-gray-100 flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-black">
+    <div className="sticky left-0 top-0 container bg-gray-100 flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-black z-10">
       {/* Logo */}
       <h1 className="w-full text-3xl font-bold text-orange-500">Amasia Rice</h1>
 
@@ -33,11 +47,13 @@ const Navbar = () => {
             Location
           </li>
         </NavLink>
-        <NavLink to="/login">
-          <li className="px-4 py-2 rounded-xl m-2 cursor-pointer duration-300 hover:text-orange-500">
-            Login
+        
+          <li onClick={handleDeleteUser} className="px-4 py-2 rounded-xl m-2 cursor-pointer duration-300 hover:text-orange-500">
+           {
+            token ? "Logout":"login"
+           }
           </li>
-        </NavLink>
+        
       </ul>
 
       {/* Mobile Navigation Icon */}
@@ -59,25 +75,25 @@ const Navbar = () => {
         </h1>
 
         {/* Mobile Navigation Items */}
-        <NavLink>
+        <NavLink to="/">
           <li className=" p-4 text-gray-700 border-b rounded-xl hover:bg-orange-500 duration-300 hover:text-white cursor-pointer border-gray-600">
             Home
           </li>
         </NavLink>
 
-        <NavLink>
+        <NavLink to="sheet">
           <li className=" p-4 text-gray-700 border-b rounded-xl hover:bg-orange-500 duration-300 hover:text-white cursor-pointer border-gray-600">
             Sheet
           </li>
         </NavLink>
 
-        <NavLink>
+        <NavLink to="/location">
           <li className=" p-4 text-gray-700 border-b rounded-xl hover:bg-orange-500 duration-300 hover:text-white cursor-pointer border-gray-600">
             Location
           </li>
         </NavLink>
 
-        <NavLink>
+        <NavLink to="/login">
           <li className=" p-4 text-gray-700 border-b rounded-xl hover:bg-orange-500 duration-300 hover:text-white cursor-pointer border-gray-600">
             Login
           </li>

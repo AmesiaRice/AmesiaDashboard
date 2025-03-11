@@ -37,6 +37,7 @@ const SheetData = () => {
     try {
       const res = await axios.get("http://localhost:5000/sheets");
       setData(res.data);
+      console.log(res.data)
     } catch (error) {
       console.error("Error fetching data:", error);
       if (error.response && error.response.status === 401) {
@@ -103,6 +104,8 @@ const SheetData = () => {
             )
           )
       : [];
+
+      filteredData.reverse((a,b)=> b-a);
 
   const handleFormSubmit = () => {
     setIsUserFormOpen(true); // Open the UserForm
@@ -193,12 +196,12 @@ const SheetData = () => {
         </div>
 
         {/* Table */}
-        <div  className="w-full overflow-x-auto sm:flex sm:justify-center lg:pl-32">
+        <div  className=" w-full max-w-full overflow-x-auto">
           {filteredData.length > 0 && (
-            <table className="mt-4 border-collapse border border-gray-400 ">
+            <table className="mt-4 border-collapse border border-gray-400 max-w-full overflow-auto">
               <thead>
                 <tr className="bg-gray-200">
-                  {data[0].map((header, index) => (
+                  {data[0].slice(0,7).map((header, index) => (
                     <th key={index} className="border border-gray-400 p-2">
                       {header}
                     </th>
@@ -214,7 +217,7 @@ const SheetData = () => {
                     className="bg-white border-b cursor-pointer hover:bg-gray-100"
                     onClick={() => handleClick(row)}
                   >
-                    {row.map((cell, cellIndex) => (
+                    {row.slice(0,7).map((cell, cellIndex) => (
                       <td
                         key={cellIndex}
                         className="border border-gray-400 px-12 py-4"
@@ -241,7 +244,7 @@ const SheetData = () => {
         {isModalOpen && (
           <EmployeeModal
             employee={selectedEmployee}
-            headers={data[0]}
+            headers={data[0].slice(0,7)}
             onClose={handleCloseModal}
             onSubmit={handleSubmit}
           />
