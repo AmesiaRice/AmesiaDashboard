@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import EmployeeModal from "../components/EmployeeModal"; // Import Modal Component
 import UserForm from "../components/UserForm"; // Import UserForm Component
 import UpdateForm from "../components/UpdateForm"; // Import UpdateForm Component
+import Tabs from "../components/Tabs";
 
 const clientId =
   "434880690733-aq7emrn4cggbdram9pi4rg4u84h1thg0.apps.googleusercontent.com";
@@ -18,6 +19,7 @@ const SheetData = () => {
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false); // State to manage UpdateForm visibility
   const [editRowData, setEditRowData] = useState(null); // State to store data of the row being edited
   const searchInputRef = useRef(null); // Create a ref for the search input
+  const [activeTab, setActiveTab] = useState("All"); // Track selected tab
 
   useEffect(() => {
     fetchData();
@@ -92,18 +94,43 @@ const SheetData = () => {
   };
 
   // Filtering the data based on the search term
+  // const filteredData =
+  //   data.length > 0
+  //     ? data
+  //         .slice(1)
+  //         .filter((row) =>
+  //           row.some(
+  //             (cell) =>
+  //               typeof cell === "string" &&
+  //               cell.toLowerCase().includes(searchTerm)
+  //           )
+  //         )
+  //     : [];
+
   const filteredData =
-    data.length > 0
-      ? data
-          .slice(1)
-          .filter((row) =>
-            row.some(
-              (cell) =>
-                typeof cell === "string" &&
-                cell.toLowerCase().includes(searchTerm)
-            )
+  data.length > 0
+    ? data
+        .slice(1)
+        .filter((row) => {
+          const partyStatusIndex = 0; // Adjust if needed
+          const partyStatus = row[partyStatusIndex]?.toLowerCase().trim(); // Ensure clean comparison
+
+          // console.log("Party Status:", partyStatus); // Debugging output
+
+          if (activeTab === "Old") return partyStatus === "old enrolled";
+          if (activeTab === "New") return partyStatus === "new enrolled"; // Check actual value
+          if (activeTab === "Meeting") return partyStatus === "meeting";
+          return true; // "All" tab shows everything
+        })
+        .filter((row) =>
+          row.some(
+            (cell) =>
+              typeof cell === "string" &&
+              cell.toLowerCase().includes(searchTerm)
           )
-      : [];
+        )
+    : [];
+
 
       filteredData.reverse((a,b)=> b-a);
 
@@ -194,6 +221,9 @@ const SheetData = () => {
             Add +{" "}
           </button>
         </div>
+
+        {/* Tab for list contain new , old , meeting , and All data */}
+        <Tabs setActiveTab={setActiveTab} />
 
         {/* Table */}
         <div  className=" w-full max-w-full overflow-x-auto">

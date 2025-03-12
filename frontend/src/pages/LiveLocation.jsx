@@ -119,7 +119,15 @@ const handleSubmit = async (event) => {
   return (
     <div className="w-[100%] h-full location">
     <div className=" max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <Toaster position="top-right" reverseOrder={false} />
+    <Toaster 
+  position="bootom-right" 
+  reverseOrder={false} 
+  toastOptions={{
+    style: {
+      zIndex: 9999 // ✅ This will make sure it appears over EVERYTHING
+    }
+  }} 
+/>
       <h2 className="text-xl font-bold mb-4">User Form</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">

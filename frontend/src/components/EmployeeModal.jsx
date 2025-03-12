@@ -32,7 +32,7 @@ const EmployeeModal = ({ employee, headers, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center overflow-auto h-[100vh]">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[70vh] overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[70vh] overflow-y-auto mt-10">
         <h2 className="text-xl font-bold mb-4">Employee Details</h2>
         <div className="space-y-2">
           {headers.map((header, index) => (

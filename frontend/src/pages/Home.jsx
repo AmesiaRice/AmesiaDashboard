@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+// import data from '../sheetData';
 
 const Home = () => {
   const [loginUserData,setLoginUserData]= useState();
   const token = localStorage.getItem("token");
+  // const [getSheetData,setGetSheetData]= useState(SheetData)
 
   useEffect(()=>{
     getUserData();
@@ -25,6 +27,7 @@ const Home = () => {
   };
 
   console.log(loginUserData);
+  // console.log(data);
   return (
     <div className={ ` home min-h-screen p-6`}>
 
