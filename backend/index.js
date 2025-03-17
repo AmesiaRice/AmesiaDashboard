@@ -18,10 +18,11 @@ connectDB();
 app.use("/api", uploadRoutes);
 app.use("/api", userRoutes);
 
+
 // Load credentials from .env file
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const sheetId = "1PjDJ7xPLDNflLT-iE7Uaj2K5_4u8l_HpzmEnetfIphI";
+const sheetId = "1XW9GK72g_YGUUvvhF9XJVnBN44h3Jo93Q8PCxqzHfTg";
 const REDIRECT_URI ="http://localhost:5000/auth/callback"; // Ensure this matches Google Cloud Console
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]; // UPDATED SCOPE
 
@@ -82,42 +83,42 @@ app.get("/sheets", async (req, res) => {
 });
 
 // Submit Data to Sheet2
-app.post("/submit", async (req, res) => {
-  if (!savedTokens) {
-    return res.status(401).send("Unauthorized: Please authenticate first.");
-  }
+// app.post("/submit", async (req, res) => {
+//   if (!savedTokens) {
+//     return res.status(401).send("Unauthorized: Please authenticate first.");
+//   }
 
-  oauth2Client.setCredentials(savedTokens);
-  const sheets = google.sheets({ version: "v4", auth: oauth2Client });
-  const spreadsheetId = sheetId; // Your Google Sheets ID
-  const { employee, selections } = req.body; // Data from frontend
+//   oauth2Client.setCredentials(savedTokens);
+//   const sheets = google.sheets({ version: "v4", auth: oauth2Client });
+//   const spreadsheetId = sheetId; // Your Google Sheets ID
+//   const { employee, selections } = req.body; // Data from frontend
 
-  const newRow = [
-    new Date().toLocaleString(), // Timestamp
-    ...employee, // Employee details
-    selections.saifcoExcel4 || "0",
-    selections.saifcoExcel20 || "0",
-    selections.saifcoWattanSe4 || "0",
-    selections.saifcoWattanSe20 || "0",
-    selections.saifcoSuper4 || "0",
-    selections.saifcoGold4 || "0",
-    selections.saifcoAmber4 || "0",
-  ];
+//   const newRow = [
+//     new Date().toLocaleString(), // Timestamp
+//     ...employee, // Employee details
+//     selections.saifcoExcel4 || "0",
+//     selections.saifcoExcel20 || "0",
+//     selections.saifcoWattanSe4 || "0",
+//     selections.saifcoWattanSe20 || "0",
+//     selections.saifcoSuper4 || "0",
+//     selections.saifcoGold4 || "0",
+//     selections.saifcoAmber4 || "0",
+//   ];
 
-  try {
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: "Sheet2!A2", // Writing to Sheet2
-      valueInputOption: "USER_ENTERED",
-      resource: {
-        values: [newRow],
-      },
-    });
-    res.json({ success: true, message: "Data submitted successfully!" });
-  } catch (error) {
-    res.status(500).send("Error submitting data: " + error.message);
-  }
-});
+//   try {
+//     await sheets.spreadsheets.values.append({
+//       spreadsheetId,
+//       range: "Sheet2!A2", // Writing to Sheet2
+//       valueInputOption: "USER_ENTERED",
+//       resource: {
+//         values: [newRow],
+//       },
+//     });
+//     res.json({ success: true, message: "Data submitted successfully!" });
+//   } catch (error) {
+//     res.status(500).send("Error submitting data: " + error.message);
+//   }
+// });
 
 // Submit Data to Party_Visit_(1)2
 app.post("/submitSameSheet", async (req, res) => {
@@ -138,7 +139,7 @@ app.post("/submitSameSheet", async (req, res) => {
   try {
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: "Sheet2!A2", // Writing to Sheet1
+      range: "Party Visit (1)!A2", // Writing to Sheet1
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [newRow],
@@ -150,43 +151,44 @@ app.post("/submitSameSheet", async (req, res) => {
   }
 });
 
+
 // Update existing row in Sheet1
-app.post("/updateRow", async (req, res) => {
-  if (!savedTokens) {
-    return res.status(401).send("Unauthorized: Please authenticate first.");
-  }
+// app.post("/updateRow", async (req, res) => {
+//   if (!savedTokens) {
+//     return res.status(401).send("Unauthorized: Please authenticate first.");
+//   }
 
-  oauth2Client.setCredentials(savedTokens);
-  const sheets = google.sheets({ version: "v4", auth: oauth2Client });
-  const spreadsheetId = sheetId; // Your Google Sheets ID
-  const { originalRow, updatedRow } = req.body; // Data from frontend
+//   oauth2Client.setCredentials(savedTokens);
+//   const sheets = google.sheets({ version: "v4", auth: oauth2Client });
+//   const spreadsheetId = sheetId; // Your Google Sheets ID
+//   const { originalRow, updatedRow } = req.body; // Data from frontend
 
-  try {
-    // Find the row index of the original row
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: "Party Visit (1)!A7:I10000",
-    });
-    const rows = response.data.values;
-    const rowIndex = rows.findIndex(row => JSON.stringify(row) === JSON.stringify(originalRow));
+//   try {
+//     // Find the row index of the original row
+//     const response = await sheets.spreadsheets.values.get({
+//       spreadsheetId,
+//       range: "Party Visit (1)!A7:I10000",
+//     });
+//     const rows = response.data.values;
+//     const rowIndex = rows.findIndex(row => JSON.stringify(row) === JSON.stringify(originalRow));
 
-    if (rowIndex === -1) {
-      return res.status(404).send("Row not found");
-    }
+//     if (rowIndex === -1) {
+//       return res.status(404).send("Row not found");
+//     }
 
-    // Update the row
-    await sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range: `Party Visit (1)!A${rowIndex + 7}`, // Adjust the range to match the row index
-      valueInputOption: "USER_ENTERED",
-      resource: {
-        values: [Object.values(updatedRow)],
-      },
-    });
-    res.json({ success: true, message: "Row updated successfully!" });
-  } catch (error) {
-    res.status(500).send("Error updating row: " + error.message);
-  }
-});
+//     // Update the row
+//     await sheets.spreadsheets.values.update({
+//       spreadsheetId,
+//       range: `Party Visit (1)!A${rowIndex + 7}`, // Adjust the range to match the row index
+//       valueInputOption: "USER_ENTERED",
+//       resource: {
+//         values: [Object.values(updatedRow)],
+//       },
+//     });
+//     res.json({ success: true, message: "Row updated successfully!" });
+//   } catch (error) {
+//     res.status(500).send("Error updating row: " + error.message);
+//   }
+// });
 
 app.listen(5000, () => console.log("Server running on http://localhost:5000"));

@@ -20,7 +20,7 @@ const SheetData = () => {
   const [editRowData, setEditRowData] = useState(null); // State to store data of the row being edited
   const searchInputRef = useRef(null); // Create a ref for the search input
   const [activeTab, setActiveTab] = useState("All"); // Track selected tab
-
+  const imgColumnIndex = 2; // Column index for Img
   useEffect(() => {
     fetchData();
     searchInputRef.current.focus(); // Focus the search input when the component mounts
@@ -48,16 +48,6 @@ const SheetData = () => {
     }
   };
 
-  const handleClick = (employee) => {
-    setSelectedEmployee(employee);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedEmployee(null);
-  };
-
   const checkAuthStatus = async () => {
     try {
       const res = await axios.get("http://localhost:5000/auth/status");
@@ -68,51 +58,37 @@ const SheetData = () => {
     }
   };
 
-  const handleSubmit = async (selectedValues) => {
-    console.log("Submitted Employee:", selectedEmployee);
-    console.log("Selected Values:", selectedValues);
-    handleCloseModal();
+  // const handleSubmit = async (selectedValues) => {
+  //   console.log("Submitted Employee:", selectedEmployee);
+  //   console.log("Selected Values:", selectedValues);
+  //   handleCloseModal();
 
-    const isAuthenticated = await checkAuthStatus();
-    if (!isAuthenticated) {
-      console.error("User is not authenticated");
-      return;
-    }
+  //   const isAuthenticated = await checkAuthStatus();
+  //   if (!isAuthenticated) {
+  //     console.error("User is not authenticated");
+  //     return;
+  //   }
 
-    try {
-      const {data}=await axios.post("http://localhost:5000/submit", {
-        employee: selectedEmployee,
-        selections: selectedValues,
-      });
-      console.log('data is :',data);
-      if(data.success){
-      alert("Data submitted successfully");
-      }
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
-  };
-
-  // Filtering the data based on the search term
-  // const filteredData =
-  //   data.length > 0
-  //     ? data
-  //         .slice(1)
-  //         .filter((row) =>
-  //           row.some(
-  //             (cell) =>
-  //               typeof cell === "string" &&
-  //               cell.toLowerCase().includes(searchTerm)
-  //           )
-  //         )
-  //     : [];
+  //   try {
+  //     const {data}=await axios.post("http://localhost:5000/submit", {
+  //       employee: selectedEmployee,
+  //       selections: selectedValues,
+  //     });
+  //     console.log('data is :',data);
+  //     if(data.success){
+  //     alert("Data submitted successfully");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //   }
+  // };
 
   const filteredData =
   data.length > 0
     ? data
         .slice(1)
         .filter((row) => {
-          const partyStatusIndex = 0; // Adjust if needed
+          const partyStatusIndex = 3; // Adjust if needed
           const partyStatus = row[partyStatusIndex]?.toLowerCase().trim(); // Ensure clean comparison
 
           // console.log("Party Status:", partyStatus); // Debugging output
@@ -138,13 +114,14 @@ const SheetData = () => {
     setIsUserFormOpen(true); // Open the UserForm
   };
 
-  const handleEditClick = (row) => {
-    setEditRowData(row);
-    setIsUpdateFormOpen(true); // Open the UpdateForm for editing
-  };
+  // const handleEditClick = (row) => {
+  //   setEditRowData(row);
+  //   setIsUpdateFormOpen(true); // Open the UpdateForm for editing
+  // };
 
   const handleUserFormSubmit = async (formData) => {
     setIsUserFormOpen(false); // Close the UserForm
+    console.log("form data is :",formData)
     const isAuthenticated = await checkAuthStatus();
     if (!isAuthenticated) {
       console.error("User is not authenticated");
@@ -162,35 +139,35 @@ const SheetData = () => {
     }
   };
 
-  const handleUpdateFormSubmit = async (formData) => {
-    setIsUpdateFormOpen(false); // Close the UpdateForm
-    const isAuthenticated = await checkAuthStatus();
-    if (!isAuthenticated) {
-      console.error("User is not authenticated");
-      return;
-    }
+  // const handleUpdateFormSubmit = async (formData) => {
+  //   setIsUpdateFormOpen(false); // Close the UpdateForm
+  //   const isAuthenticated = await checkAuthStatus();
+  //   if (!isAuthenticated) {
+  //     console.error("User is not authenticated");
+  //     return;
+  //   }
 
-    try {
-      // Update existing row
-      await axios.post("http://localhost:5000/updateRow", {
-        originalRow: editRowData,
-        updatedRow: formData,
-      });
-      fetchData(); // Refresh data after submission
-    } catch (error) {
-      console.error("Error updating data:", error);
-    } finally {
-      setEditRowData(null);
-    }
-  };
+  //   try {
+  //     // Update existing row
+  //     await axios.post("http://localhost:5000/updateRow", {
+  //       originalRow: editRowData,
+  //       updatedRow: formData,
+  //     });
+  //     fetchData(); // Refresh data after submission
+  //   } catch (error) {
+  //     console.error("Error updating data:", error);
+  //   } finally {
+  //     setEditRowData(null);
+  //   }
+  // };
 
   const handleUserFormClose = () => {
     setIsUserFormOpen(false); // Close the UserForm
   };
 
-  const handleUpdateFormClose = () => {
-    setIsUpdateFormOpen(false); // Close the UpdateForm
-  };
+  // const handleUpdateFormClose = () => {
+  //   setIsUpdateFormOpen(false); // Close the UpdateForm
+  // };
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
@@ -231,12 +208,12 @@ const SheetData = () => {
             <table className="mt-4 border-collapse border border-gray-400 max-w-full overflow-auto">
               <thead>
                 <tr className="bg-gray-200">
-                  {data[0].slice(0,7).map((header, index) => (
+                  {data[0].slice(0,11).map((header, index) => (
                     <th key={index} className="border border-gray-400 p-2">
                       {header}
                     </th>
                   ))}
-                  {/* <th className="border border-gray-400 p-2">Actions</th>{" "} */}
+                  <th className="border border-gray-400 p-2">Actions</th>{" "}
                   {/* Add Actions column */}
                 </tr>
               </thead>
@@ -247,38 +224,29 @@ const SheetData = () => {
                     className="bg-white border-b cursor-pointer hover:bg-gray-100"
                     onClick={() => handleClick(row)}
                   >
-                    {row.slice(0,7).map((cell, cellIndex) => (
-                      <td
-                        key={cellIndex}
-                        className="border border-gray-400 px-12 py-4"
-                      >
-                        {cell}
-                      </td>
+                    {row.slice(0,11).map((cell, cellIndex) => (
+                     <td key={cellIndex} className="border border-gray-400 px-12 py-4 min-w-[200px] h-[150px]">
+                     {cellIndex === imgColumnIndex && typeof cell === "string" && cell.startsWith("http") ? (
+                       <img src={cell} alt="Uploaded" className="w-48 h-32 object-cover rounded-lg" />
+                     ) : (
+                       cell || "—"
+                     )}
+                   </td>
                     ))}
-                    {/* <td className="border border-gray-400 px-12 py-4">
+                    <td className="border border-gray-400 px-12 py-4">
                       <button
                         className="bg-blue-500 text-white p-2"
-                        onClick={() => handleEditClick(row)}
+                        // onClick={() => handleEditClick(row)}
                       >
                         Edit
                       </button>
-                    </td> */}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </div>
-
-        {/* Employee Modal */}
-        {isModalOpen && (
-          <EmployeeModal
-            employee={selectedEmployee}
-            headers={data[0].slice(0,7)}
-            onClose={handleCloseModal}
-            onSubmit={handleSubmit}
-          />
-        )}
 
         {/* User Form */}
         {isUserFormOpen && (
@@ -289,15 +257,6 @@ const SheetData = () => {
           />
         )}
 
-        {/* Update Form */}
-        {isUpdateFormOpen && (
-          <UpdateForm
-            headers={data[0]}
-            initialData={editRowData}
-            onSubmit={handleUpdateFormSubmit}
-            onClose={handleUpdateFormClose}
-          />
-        )}
       </div>
     </GoogleOAuthProvider>
   );

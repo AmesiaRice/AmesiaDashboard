@@ -42,11 +42,11 @@ const Navbar = () => {
             Sheet
           </li>
         </NavLink>
-        <NavLink to="/location">
+        {/* <NavLink to="/location">
           <li className="px-4 py-2 rounded-xl m-2 cursor-pointer duration-300 hover:text-orange-500">
             Location
           </li>
-        </NavLink>
+        </NavLink> */}
         
           <li onClick={handleDeleteUser} className="px-4 py-2 rounded-xl m-2 cursor-pointer duration-300 hover:text-orange-500">
            {
@@ -87,15 +87,17 @@ const Navbar = () => {
           </li>
         </NavLink>
 
-        <NavLink to="/location">
+        {/* <NavLink to="/location">
           <li className=" p-4 text-gray-700 border-b rounded-xl hover:bg-orange-500 duration-300 hover:text-white cursor-pointer border-gray-600">
             Location
           </li>
-        </NavLink>
+        </NavLink> */}
 
         <NavLink to="/login">
           <li className=" p-4 text-gray-700 border-b rounded-xl hover:bg-orange-500 duration-300 hover:text-white cursor-pointer border-gray-600">
-            Login
+          {
+            token ? "Logout":"login"
+           }
           </li>
         </NavLink>
       </ul>

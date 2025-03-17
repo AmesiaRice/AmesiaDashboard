@@ -31,7 +31,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={token ? <Home /> : <Navigate to="/login" />} />
         <Route path="/sheet" element={token ? <SheetData /> : <Navigate to="/login" />} />
-        <Route path="/location" element={token ? <LiveLocation /> : <Navigate to="/login" />} />
+        {/* <Route path="/location" element={token ? <LiveLocation /> : <Navigate to="/login" />} /> */}
         <Route path="/register" element={<Register />} />
 
         {/* Admin Protected Route */}
